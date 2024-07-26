@@ -1,86 +1,103 @@
-const fs = require("fs");
-let tours = JSON.parse(fs.readFileSync(`${__dirname}/../data/data.json`, "utf-8"));
+const Tour = require('./../models/tourModel')
+// const fs = require("fs");
+// let tours = JSON.parse(fs.readFileSync(`${__dirname}/../data/data.json`, "utf-8"));
 
-exports.getTours = (req, res) => {
-  res.status(200).json({
-    message: "success connect",
-    timeRequset:req.RequestTime,
-    resualtCount: tours.length,
-    data: tours,
-  });
-};
-
-exports.getOneTours = (req, res) => {
-  const id = req.params.id * 1;
-  const tour = tours.find((item) => item.id === id);
-
-  if (!tour) {
-    return res.status(404).json({
-      message: "page 404",
-      data: null,
+exports.getTours = async (req, res, next) => {
+  try {
+    const tours = await Tour.find({
+      duration:req.query.duration
     });
-  }
+    // const tours = await Tour.find().where('duration').equals(7).where('name').equals("")
 
-  res.status(200).json({
-    message: "success connect",
-    data: tour,
-  });
-};
-
-exports.postTours = (req, res) => {
-  if (req.body.name && req.body.age) {
-    tours.push({ ...req.body, id: tours.length + 1 });
-    fs.writeFile(
-      `${__dirname}/../data/data.json`,
-      JSON.stringify(tours),
-      (err, data) => {
-        if (err == null) {
-          res.status(200).json({
-            message: "success create",
-            data: tours,
-          });
-        } else {
-          res.status(404).json({
-            message: "در دریافت  دیتا از سمت سرور مشکلی پیش آمده است",
-            data: null,
-            errors: err,
-          });
-        }
-      }
-    );
-  } else {
-    res.status(404).json({
-      message: "لطفا فیلد های نام وسن را پر کنید !",
-      data: null,
-      errors: "not found",
-    });
-  }
-};
-
-exports.patchTours = (req, res) => {
-  if (req.params.id <= tours.length) {
     res.status(200).json({
       message: "success connect",
-      data: "tour",
+      resualtCount: tours.length,
+      data: tours,
     });
-  } else {
-    res.status(404).json({
-      message: "not found",
-      data: "404",
+
+  } catch (err) {
+    res.status(400).json({
+      message: "bad connect",
+      data: null,
+      erros: err
     });
   }
+  next()
 };
 
-exports.deleteTours = (req, res) => {
-  if (req.params.id <= tours.length) {
-    res.status(204).json({
+exports.getOneTours = async (req, res, next) => {
+  try {
+    const tour = await Tour.findById(req.params.id);
+    // Tour.findOne( {_id : req.params.id});
+
+    res.status(200).json({
       message: "success connect",
-      data: null,
+      data: tour,
     });
-  } else {
-    res.status(404).json({
-      message: "not found",
-      data: "404",
+  } catch (err) {
+    res.status(400).json({
+      message: "bad connect",
+      data: null,
+      erros: err
     });
   }
+  next()
+};
+
+exports.createTours = async (req, res, next) => {
+  try {
+    const newTour = await Tour.create(req.body);
+
+    res.status(200).json({
+      message: "success create",
+      data: newTour,
+    });
+
+  } catch (err) {
+    res.status(400).json({
+      message: "در دریافت  دیتا از سمت کلاینت مشکلی پیش آمده است",
+      data: null,
+      errors: err,
+    });
+  }
+  next()
+};
+
+exports.patchTours = async (req, res, next) => {
+  try {
+    const tour = await Tour.findByIdAndUpdate(req.params.id, req.body, {
+      new: true,
+      runValidators: true,
+    })
+    res.status(200).json({
+      message: "success update",
+      data: tour,
+    });
+  } catch (err) {
+    res.status(404).json({
+      message: "has problem",
+      data: null,
+      errors: err
+    });
+  }
+
+  next()
+};
+
+exports.deleteTours = async (req, res, next) => {
+  try {
+     await Tour.findByIdAndDelete(req.params.id)
+    res.status(200).json({
+      message: "success delete",
+      data:null
+    });
+  } catch (err) {
+    res.status(404).json({
+      message: "has problem",
+      data: null,
+      errors: err
+    });
+  }
+
+  next()
 };
