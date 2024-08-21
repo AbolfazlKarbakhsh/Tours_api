@@ -1,4 +1,5 @@
-const mongoose = require("mongoose")
+const mongoose = require("mongoose");
+const User = require("./UserModel");
 
 // create schema 
 const tourSchema = new mongoose.Schema({
@@ -6,7 +7,8 @@ const tourSchema = new mongoose.Schema({
     type: String,
     trim: true,
     unique: [true, "unique value ..."],
-    required: [true, "A tour most have name"]
+    required: [true, "A tour most have name"],
+
   },
   duration: {
     type: Number,
@@ -50,10 +52,24 @@ const tourSchema = new mongoose.Schema({
   images: [String],
   createAt: {
     type: Date,
-    default: Date.now()
+    default: Date.now(),
+    select: false,
   },
-  startDates: [Date]
+  startDates: [Date],
+  guides: [
+    {
+      type: mongoose.Schema.ObjectId,
+      ref:'Users'
+    }
+  ],
+
 })
+
+// tourSchema.pre('save', async function (next) {
+//   const guidesPromises =  this.guides.map(async id => await User.findById(id))
+//   this.guides = await Promise.all(guidesPromises)
+//   next();
+// })
 // create model 
 const Tour = mongoose.model("Tour", tourSchema)
 // const newTour = new Tour({})

@@ -14,7 +14,6 @@ mongoose.connect(process.env.DATABASE_LOCAL).then(con => {
 // Read Json FIle
 const tours =JSON.parse(fs.readFileSync(`${__dirname}/tours.json`, 'utf-8'))
 
-
 // import data
 const importDate = async () => {
   try {
