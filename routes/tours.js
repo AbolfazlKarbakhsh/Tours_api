@@ -1,9 +1,11 @@
 const express = require("express")
 const router = express.Router()
 const ContollerTour = require("../controllers/tours")
-const ContollerAuth = require("../controllers/authContoller");
+const ContollerAuth = require("../controllers/app/authContoller");
+const reviewRouter = require('../routes/reveiw')
 
 
+router.use("/:tourId/review",  reviewRouter)
 
 router.route('/top-5-cheap').get(ContollerTour.aliasTopTour, ContollerTour.getTours)
 
@@ -17,5 +19,7 @@ router.route("/:id")
   .delete(
     ContollerTour.deleteTours
   );
+
+
 
 module.exports = router;

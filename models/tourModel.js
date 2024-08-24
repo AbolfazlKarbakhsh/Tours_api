@@ -59,10 +59,18 @@ const tourSchema = new mongoose.Schema({
   guides: [
     {
       type: mongoose.Schema.ObjectId,
-      ref:'Users'
+      ref: 'Users'
     }
   ],
+}, {
+  toJSON: { virtuals: true },
+  toObject: { virtuals: true }
+})
 
+tourSchema.virtual('reviews', {
+  ref: 'Review',
+  foreignField: 'tour',
+  localField: '_id'
 })
 
 // tourSchema.pre('save', async function (next) {
@@ -70,8 +78,19 @@ const tourSchema = new mongoose.Schema({
 //   this.guides = await Promise.all(guidesPromises)
 //   next();
 // })
+tourSchema.pre(/^find/, function (next) {
+  this.populate({
+    path: 'guides', select: 'name'
+  })
+  next();
+})
+
 // create model 
 const Tour = mongoose.model("Tour", tourSchema)
 // const newTour = new Tour({})
 
 module.exports = Tour;
+
+
+// nestd  tour
+// Post/ tour/2d4sfs4fd/reveiws

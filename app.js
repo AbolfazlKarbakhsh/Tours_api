@@ -9,22 +9,23 @@ const swaggerDocument = require('./swagger-output.json');
 const AppError = require('./utils/appError')
 const tourRoute = require("./routes/tours");
 const userRoute = require(`./routes/users`);
-const golbalErrorHandler = require('./controllers/errorController.js');
-
+const reveiwRoute = require(`./routes/reveiw`);
+const golbalErrorHandler = require('./controllers/app/errorController.js');
 app.use(helmet())
 
-const limiter = rateLimit({
-  max:1000,
-  window:60 * 60 * 100,
-  message: 'to mant request this ip'
-})
-app.use('/api',limiter)
+// const limiter = rateLimit({
+//   max:1000,
+//   window:60 * 60 * 100,
+//   message: 'to mant request this ip'
+// })
+// app.use('/api',limiter)
 app.use(morgan('dev'))
 app.use(express.json());
 
 // routers connect
 app.use("/api/v1/tours", tourRoute);
 app.use("/api/v1/users", userRoute);
+app.use("/api/v1/review", reveiwRoute);
 
 
 //swagerUi 

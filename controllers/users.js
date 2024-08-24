@@ -1,7 +1,9 @@
 const User = require('../models/UserModel')
-const APIFeatears = require('../utils/ApiFeacters');
 const catchAsyinc = require('../utils/catchAysinc');
 const AppError = require('../utils/appError');
+const factory = require("../controllers/app/factory");
+
+
 const filterObj = (obj, ...allowedFeilds) => {
   const newObj = {};
   Object.keys(obj).forEach(el => {
@@ -12,37 +14,12 @@ const filterObj = (obj, ...allowedFeilds) => {
   return newObj
 }
 
+exports.getMe = (req, res, next) => {
 
-exports.getUsers = catchAsyinc(async (req, res, next) => {
-  // Exicute Query
-  console.log("test");
-  const featurs = new APIFeatears(User.find(), req.query)
-    .filter()
-    .sort()
-    .limited()
-    .pagination()
+  req.params.id = req.user.id;
 
-  const Users = await featurs.query;
-
-  res.status(200).json({
-    message: "success connect",
-    resualtCount: Users.length,
-    data: Users,
-  });
-
-})
-
-exports.getOneUsers = catchAsyinc(async (req, res, next) => {
-  const user = await User.findById(req.params.id);
-  // User.findOne( {_id : req.params.id});
-  if (user == null) {
-    return next(new AppError("no user found with that Id", 404))
-  }
-  res.status(200).json({
-    message: "success connect",
-    data: user,
-  });
-})
+  next()
+}
 
 exports.updateMe = catchAsyinc(async (req, res, next) => {
   const { password, RePassword } = req.body;
@@ -70,37 +47,8 @@ exports.deleteMe = catchAsyinc(async (req, res, next) => {
   })
 })
 
-exports.createUsers = catchAsyinc(async (req, res, next) => {
-  const newUser = await User.create(req.body);
-
-  res.status(200).json({
-    message: "success create",
-    data: newUser,
-  });
-
-})
-
-exports.patchUsers = catchAsyinc(async (req, res, next) => {
-  const user = await User.findByIdAndUpdate(req.user._id, req.body, {
-    new: true,
-    runValidators: true,
-  })
-  if (user == null) {
-    return next(new AppError("no user found with that Id", 404))
-  }
-  res.status(200).json({
-    message: "success update",
-    data: user,
-  });
-})
-
-exports.deleteUsers = catchAsyinc(async (req, res, next) => {
-  const user = await User.findByIdAndDelete(req.params.id);
-  if (user == null) {
-    return next(new AppError("no user found with that Id", 404))
-  }
-  res.status(200).json({
-    message: "success delete",
-    data: null
-  });
-})
+exports.getUsers = factory.getALL(User)
+exports.getOneUsers = factory.getOne(User)
+exports.createUsers = factory.createOne(User)
+exports.patchUsers = factory.updateOne(User);
+exports.deleteUsers = factory.deleteOne(User);
